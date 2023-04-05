@@ -1,0 +1,23 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="">
+    <title>My Diary | {{template "title" .}}</title>
+</head>
+<body>
+    <header> 
+        <h1><a href='/'>Username, welcome to your diary!</a></h1> 
+    </header>
+
+    <nav>
+        <a href='/'>Home page</a>
+    </nav>
+
+    <main>
+        {{template "main" .}}
+    </main>
+</body>
+</html>
+{{end}}
