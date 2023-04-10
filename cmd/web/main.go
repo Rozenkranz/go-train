@@ -2,11 +2,18 @@ package main
 
 import (
 	"flag"
+	"log"
 	"net/http"
-
-	"github.com/Rozenkranz/go-train/cmd/web/handlers"
-	"github.com/Rozenkranz/go-train/logging"
+	"os"
 )
+
+var InfoLog = log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+var ErrorLog = log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+
+type app struct {
+	ErrorLog *log.Logger
+	InfoLog  *log.Logger
+}
 
 func main() {
 
@@ -14,19 +21,24 @@ func main() {
 
 	flag.Parse()
 
+	a := &app{
+		ErrorLog: ErrorLog,
+		InfoLog:  InfoLog,
+	}
+
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", handlers.Home)
-	mux.HandleFunc("/quests", handlers.Quests)
-	mux.HandleFunc("/quests/add", handlers.AddQuest)
+	mux.HandleFunc("/", a.Home)
+	mux.HandleFunc("/quests", a.Quests)
+	mux.HandleFunc("/quests/add", a.AddQuest)
 
 	srv := &http.Server{
 		Addr:     *addr,
-		ErrorLog: logging.ErrorLog,
+		ErrorLog: ErrorLog,
 		Handler:  mux,
 	}
 
-	logging.InfoLog.Printf("Starting server on %v...\n", *addr)
+	InfoLog.Printf("Starting server on %v...\n", *addr)
 	err := srv.ListenAndServe()
-	logging.ErrorLog.Fatal(err)
+	ErrorLog.Fatal(err)
 
 }
