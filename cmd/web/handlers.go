@@ -48,10 +48,8 @@ func (a *app) Quests(w http.ResponseWriter, r *http.Request) {
 func (a *app) AddQuest(w http.ResponseWriter, r *http.Request) {
 	//Проверка на тип запроса
 	if r.Method != http.MethodPost {
-		w.Header().Set("Allow", http.MethodPost)
-		w.Write([]byte("Your request is not allowed\n"))
 		a.InfoLog.Printf("AddQuest was visited by %s\n with %s method\n", r.RemoteAddr, r.Method)
-		a.clientError(w, http.StatusInternalServerError)
+		a.clientError(w, http.StatusBadRequest)
 		return
 	}
 	w.Write([]byte("Creating a new quest"))
