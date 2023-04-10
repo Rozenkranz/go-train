@@ -10,6 +10,11 @@ import (
 func (a *app) Home(w http.ResponseWriter, r *http.Request) {
 	a.InfoLog.Printf("Home was visited by %s\n with %s method\n", r.RemoteAddr, r.Method)
 
+	if r.URL.Path != "/" {
+		a.notFound(w)
+		return
+	}
+
 	var files = []string{
 		"./ui/html/home_page.tmpl",
 		"./ui/html/base_layout.tmpl",
@@ -18,22 +23,20 @@ func (a *app) Home(w http.ResponseWriter, r *http.Request) {
 
 	ts, err := template.ParseFiles(files...)
 	if err != nil {
-		a.ErrorLog.Println(err.Error())
-		http.Error(w, "Internal Server Error", 500)
+		a.serverError(w, err)
 		return
 	}
 
 	err = ts.Execute(w, nil)
 	if err != nil {
-		a.ErrorLog.Println(err.Error())
-		http.Error(w, "Internal Server Error", 500)
+		a.serverError(w, err)
 	}
 }
 
 func (a *app) Quests(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 	if err != nil || id < 1 {
-		http.NotFound(w, r)
+		a.notFound(w)
 		return
 	}
 
@@ -45,12 +48,10 @@ func (a *app) Quests(w http.ResponseWriter, r *http.Request) {
 func (a *app) AddQuest(w http.ResponseWriter, r *http.Request) {
 	//Проверка на тип запроса
 	if r.Method != http.MethodPost {
-		//Запись кода ошибки
-		w.WriteHeader(405)
-		//Добавление заголовка разрешённого метода
 		w.Header().Set("Allow", http.MethodPost)
 		w.Write([]byte("Your request is not allowed\n"))
-		a.InfoLog.Printf("Add was visited by %s\n with %s method\n", r.RemoteAddr, r.Method)
+		a.InfoLog.Printf("AddQuest was visited by %s\n with %s method\n", r.RemoteAddr, r.Method)
+		a.clientError(w, http.StatusInternalServerError)
 		return
 	}
 	w.Write([]byte("Creating a new quest"))
