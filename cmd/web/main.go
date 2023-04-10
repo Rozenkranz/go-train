@@ -26,15 +26,10 @@ func main() {
 		InfoLog:  InfoLog,
 	}
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", a.Home)
-	mux.HandleFunc("/quests", a.Quests)
-	mux.HandleFunc("/quests/add", a.AddQuest)
-
 	srv := &http.Server{
 		Addr:     *addr,
 		ErrorLog: ErrorLog,
-		Handler:  mux,
+		Handler:  a.routes(),
 	}
 
 	InfoLog.Printf("Starting server on %v...\n", *addr)
